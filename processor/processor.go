@@ -506,7 +506,7 @@ func searchGreySongs(data common.SliceType, netease *Netease) bool {
 }
 func searchGreySong(data common.MapType, netease *Netease) bool {
 	modified := false
-	if data["url"] == nil || data["freeTrialInfo"] != nil {
+	if (*config.AlwaysReplace && netease.Path == "/api/song/enhance/player/url") || data["url"] == nil || data["freeTrialInfo"] != nil {
 		data["flag"] = 0
 		songId := data["id"].(json.Number).String()
 		searchMusic := common.SearchMusic{Id: songId, Quality: netease.MusicQuality}
@@ -516,11 +516,17 @@ func searchGreySong(data common.MapType, netease *Netease) bool {
 			modified = true
 			if index := strings.LastIndex(song.Url, "."); index != -1 {
 				songType := song.Url[index+1:]
-				songType = width.Narrow.String(songType)
-				if len(songType) > 5 && strings.Contains(songType, "?") {
-					songType = songType[0:strings.Index(songType, "?")]
+				if song.PlatformUniqueKey["songType"] != nil {
+					songType = song.PlatformUniqueKey["songType"].(string)
+					song.PlatformUniqueKey = nil
+				} else {
+					songType = width.Narrow.String(songType)
+					if len(songType) > 5 && strings.Contains(songType, "?") {
+						songType = songType[0:strings.Index(songType, "?")]
+					}
 				}
-				if songType == "mp3" || songType == "flac" || songType == "ape" || songType == "wav" || songType == "aac" || songType == "mp4" {
+
+				if songType == "mp3" || songType == "flac" || songType == "ape" || songType == "wav" || songType == "aac" || songType == "m4a" || songType == "mp4" {
 					data["type"] = songType
 				} else {
 					log.Println("unrecognized format:", songType)

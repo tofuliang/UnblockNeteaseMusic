@@ -2,6 +2,7 @@ package provider
 
 import (
 	"fmt"
+	"github.com/cnsilvan/UnblockNeteaseMusic/provider/opensubsonic"
 	"log"
 
 	"github.com/cnsilvan/UnblockNeteaseMusic/cache"
@@ -32,6 +33,9 @@ var providers map[string]Provider
 func Init() {
 	providers = make(map[string]Provider)
 	for _, source := range common.Source {
+		if source == "opensubsonic" {
+			opensubsonic.Init()
+		}
 		providers[source] = NewProvider(source)
 	}
 }
@@ -45,6 +49,8 @@ func NewProvider(kind string) Provider {
 		return &migu.Migu{}
 	case "qq":
 		return &qq.QQ{}
+	case "opensubsonic":
+		return &opensubsonic.OpenSubsonic{}
 	default:
 		return &kuwo.KuWo{}
 	}
@@ -89,6 +95,8 @@ func Find(music common.SearchMusic) common.Song {
 				re = calculateSongInfo(GetProvider("migu").GetSongUrl(music, song))
 			} else if strings.Index(music.Id, string(common.QQTag)) == 0 {
 				re = calculateSongInfo(GetProvider("qq").GetSongUrl(music, song))
+			} else if strings.Index(music.Id, string(common.OpenSubsonicTag)) == 0 {
+				re = calculateSongInfo(GetProvider("opensubsonic").GetSongUrl(music, song))
 			} else {
 
 			}
@@ -210,7 +218,6 @@ func parseSongFn(key common.MapType, music common.SearchMusic) *common.Song {
 	if id != "0" {
 		result.Id = id
 		if len(result.Url) > 0 {
-			result.PlatformUniqueKey = nil
 			cache.PutSong(music, result)
 		}
 	}

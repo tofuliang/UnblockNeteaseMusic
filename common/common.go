@@ -44,11 +44,12 @@ type SearchSong struct {
 type PlatformIdTag string
 
 const (
-	StartTag PlatformIdTag = "9000"
-	KuWoTag  PlatformIdTag = "90000"
-	MiGuTag  PlatformIdTag = "90001"
-	KuGouTag PlatformIdTag = "90002"
-	QQTag    PlatformIdTag = "90003"
+	StartTag        PlatformIdTag = "9000"
+	KuWoTag         PlatformIdTag = "90000"
+	MiGuTag         PlatformIdTag = "90001"
+	KuGouTag        PlatformIdTag = "90002"
+	QQTag           PlatformIdTag = "90003"
+	OpenSubsonicTag PlatformIdTag = "90004"
 )
 
 type SearchOrderBy int32

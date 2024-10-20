@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	
+
 	"github.com/cnsilvan/UnblockNeteaseMusic/common"
 	"github.com/cnsilvan/UnblockNeteaseMusic/utils"
 	"github.com/cnsilvan/UnblockNeteaseMusic/version"
@@ -33,6 +33,8 @@ var (
 	UnlockSoundEffects = flag.Bool("sef", false, "unlock SoundEffects")
 	QQCookieFile       = flag.String("qc", "./qq.cookie", "specify cookies file ,such as : \"qq.cookie\"")
 	LogWebTraffic      = flag.Bool("wl", false, "log request url and response")
+	OpenSubsonicConfig = flag.String("osc", "./openSubsonicConfig.json", "specify OpenSubsonicConfig.json file,such as : \"openSubsonicConfig.json\"")
+	AlwaysReplace      = flag.Bool("ar", false, "always replace song url")
 )
 
 func ValidParams() bool {
@@ -61,7 +63,7 @@ func ValidParams() bool {
 	for _, source := range sources {
 		common.Source = append(common.Source, source)
 	}
-	
+
 	currentPath, err := utils.GetCurrentPath()
 	if err != nil {
 		log.Println(err)
