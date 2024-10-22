@@ -68,6 +68,7 @@ var (
 		"/api/usertool/sound/mobile/all":           1,
 		"/api/usertool/sound/mobile/detail":        1,
 		"/api/pc/upgrade/get":                      1,
+		"/api/song/enhance/download/url/v1":        1,
 	}
 )
 
@@ -506,7 +507,7 @@ func searchGreySongs(data common.SliceType, netease *Netease) bool {
 }
 func searchGreySong(data common.MapType, netease *Netease) bool {
 	modified := false
-	if (*config.AlwaysReplace && netease.Path == "/api/song/enhance/player/url") || data["url"] == nil || data["freeTrialInfo"] != nil {
+	if (*config.AlwaysReplace && strings.Contains(netease.Path, "/api/song/enhance/player/url")) || data["url"] == nil || data["freeTrialInfo"] != nil {
 		data["flag"] = 0
 		songId := data["id"].(json.Number).String()
 		searchMusic := common.SearchMusic{Id: songId, Quality: netease.MusicQuality}
@@ -549,8 +550,12 @@ func searchGreySong(data common.MapType, netease *Netease) bool {
 				}
 			}
 			data["encodeType"] = data["type"] // web
-			data["level"] = "standard"        // web
-			data["fee"] = 8                   // web
+			if song.Br > 320000 {
+				data["level"] = "lossless" // web
+			} else {
+				data["level"] = "standard" // web
+			}
+			data["fee"] = 8 // web
 			uri, err := url.Parse(song.Url)
 			if err != nil {
 				log.Println("url.Parse error:", song.Url)
@@ -688,6 +693,14 @@ func processMapJson(jsonMap common.MapType) bool {
 		}
 		if v, _ := jsonMap["plLevel"]; v != nil && v == "none" {
 			jsonMap["plLevel"] = "exhigh"
+			needModify = true
+		}
+		if v, _ := jsonMap["dlLevel"]; v != nil && v == "none" {
+			jsonMap["dlLevel"] = "lossless"
+			needModify = true
+		}
+		if v, _ := jsonMap["downloadMaxBrLevel"]; v != nil {
+			jsonMap["downloadMaxBrLevel"] = "lossless"
 			needModify = true
 		}
 		if v, _ := jsonMap["payed"]; v != nil {
