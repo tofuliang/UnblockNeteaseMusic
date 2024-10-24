@@ -63,6 +63,9 @@ func (o OpenSubsonic) SearchSong(song common.SearchSong) (songs []*common.Song) 
 		maxIndex = 10
 	}
 	var tempSongs []*common.Song
+	sort.Slice(searchResult.Song, func(i, j int) bool {
+		return searchResult.Song[i].Year < searchResult.Song[j].Year
+	})
 	for index, result := range searchResult.Song {
 		if index >= maxIndex {
 			break
