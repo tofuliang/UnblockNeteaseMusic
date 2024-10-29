@@ -73,7 +73,7 @@ func (m *KuGou) SearchSong(song common.SearchSong) (songs []*common.Song) {
 								if ok && len(songResult.Id) > 0 {
 									songResult.Id = string(common.KuGouTag) + songResult.Id
 								}
-								songResult.MatchScore, ok = base.CalScore(song, songName, singerName, index, maxIndex)
+								songResult.MatchScore, ok = base.CalScore(song, songName, singerName, songResult.AlbumName, index, maxIndex)
 								if !ok {
 									continue
 								}

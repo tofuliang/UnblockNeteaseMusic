@@ -93,7 +93,7 @@ func (m *KuWo) SearchSong(song common.SearchSong) (songs []*common.Song) {
 								songResult.Artist = singerName
 								songResult.AlbumName = html.UnescapeString(kuWoSong["ALBUM"].(string))
 								songResult.Artist = strings.ReplaceAll(singerName, " ", "")
-								songResult.MatchScore, ok = base.CalScore(song, songName, singerName, index, maxIndex)
+								songResult.MatchScore, ok = base.CalScore(song, songName, singerName, songResult.AlbumName, index, maxIndex)
 								if !ok {
 									continue
 								}

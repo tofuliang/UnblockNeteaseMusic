@@ -79,7 +79,7 @@ func (m *Migu) SearchSong(song common.SearchSong) (songs []*common.Song) {
 						songResult.Artist = singerName
 						songResult.AlbumName, _ = miguSong["albumName"].(string)
 						songResult.Artist = strings.ReplaceAll(singerName, " ", "")
-						songResult.MatchScore, ok = base.CalScore(song, songName, singerName, index, maxIndex)
+						songResult.MatchScore, ok = base.CalScore(song, songName, singerName, songResult.AlbumName, index, maxIndex)
 						if !ok {
 							continue
 						}
@@ -121,8 +121,8 @@ func (m *Migu) GetSongUrl(searchSong common.SearchMusic, song *common.Song) *com
 				header["origin"] = append(header["origin"], "http://music.migu.cn/")
 				header["referer"] = append(header["referer"], "http://music.migu.cn/")
 				clientRequest := network.ClientRequest{
-					Method:               http.MethodGet,
-					RemoteUrl:            "http://music.migu.cn/v3/api/music/audioPlayer/getPlayInfo?dataType=2&" + encrypt(en),
+					Method:    http.MethodGet,
+					RemoteUrl: "http://music.migu.cn/v3/api/music/audioPlayer/getPlayInfo?dataType=2&" + encrypt(en),
 					//Host:                 "music.migu.cn",
 					Header:               header,
 					Proxy:                true,

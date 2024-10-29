@@ -101,7 +101,7 @@ func (m *QQ) SearchSong(song common.SearchSong) (songs []*common.Song) {
 								songResult.Artist = strings.Join(artists, " & ")
 								songResult.AlbumName = qqSong.Album.Name
 								songResult.Id = string(common.QQTag) + qqSong.Mid
-								songResult.MatchScore, ok = base.CalScore(song, qqSong.Name, songResult.Artist, index, maxIndex)
+								songResult.MatchScore, ok = base.CalScore(song, qqSong.Name, songResult.Artist, songResult.AlbumName, index, maxIndex)
 								if !ok {
 									continue
 								}

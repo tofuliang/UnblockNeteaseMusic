@@ -3,6 +3,7 @@ package opensubsonic
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -19,6 +20,7 @@ import (
 var clients []subsonic.Client
 var lastUsedClient *subsonic.Client
 var lastUsedTime time.Time
+var handle *time.Timer
 
 type OpenSubsonic struct {
 }
@@ -82,6 +84,7 @@ func (o OpenSubsonic) SearchSong(song common.SearchSong) (songs []*common.Song) 
 			Name:      result.Title,
 			Artist:    result.Artist,
 			AlbumName: result.Album,
+			Duration:  result.Duration,
 			Source:    `OpenSubsonic`,
 		}
 		songResult.PlatformUniqueKey = map[string]interface{}{}
@@ -89,7 +92,7 @@ func (o OpenSubsonic) SearchSong(song common.SearchSong) (songs []*common.Song) 
 		songResult.PlatformUniqueKey["MusicId"] = result.ID
 		songResult.PlatformUniqueKey["songType"] = result.Suffix
 		ok := false
-		songResult.MatchScore, ok = base.CalScore(song, result.Title, result.Artist, index, maxIndex)
+		songResult.MatchScore, ok = base.CalScore(song, result.Title, result.Artist, result.Album, index, maxIndex)
 		if !ok {
 			continue
 		}
@@ -105,6 +108,31 @@ func (o OpenSubsonic) SearchSong(song common.SearchSong) (songs []*common.Song) 
 }
 
 func (o OpenSubsonic) GetSongUrl(searchSong common.SearchMusic, song *common.Song) *common.Song {
+	if handle != nil {
+		handle.Stop()
+	}
+	client, err := getClient()
+	if err != nil {
+		return song
+	}
+	if song.Duration > 0 {
+		var duration int
+		if song.Duration > 480 {
+			duration = 240
+		} else {
+			duration = song.Duration / 2
+		}
+		handle = time.AfterFunc(time.Duration(duration)*time.Second, func() {
+			err := client.Scrobble(song.Id, map[string]string{})
+			if err != nil {
+				log.Println("Scrobble song failed", err)
+			} else {
+				log.Println("Scrobble song", song.Name)
+			}
+			handle.Stop()
+		})
+	}
+
 	return song
 }
 

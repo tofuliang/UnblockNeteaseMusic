@@ -41,32 +41,40 @@ func Fetch(url string, cookies []*http.Cookie, header http.Header, proxy bool) (
 	result = utils.ParseJsonV2(body)
 	return result, nil
 }
-func CalScore(song common.SearchSong, songName string, singerName string, index int, maxIndex int) (float32, bool) {
+func CalScore(song common.SearchSong, songName string, singerName, albumName string, index int, maxIndex int) (float32, bool) {
 	if song.OrderBy == common.MatchedScoreDesc {
-		if strings.Contains(songName, "伴奏") && !strings.Contains(song.Keyword, "伴奏") {
-			return 0, false
-		}
-		if strings.Contains(strings.ToUpper(songName), "DJ") &&
-			!strings.Contains(strings.ToUpper(song.Keyword), "DJ") {
-			return 0, false
-		}
-		if strings.Contains(strings.ToUpper(songName), "COVER") &&
-			!strings.Contains(strings.ToUpper(song.Keyword), "COVER") {
-			return 0, false
-		}
-		if strings.Contains(strings.ToUpper(songName), "MIX") &&
-			!strings.Contains(strings.ToUpper(song.Keyword), "MIX") {
-			return 0, false
-		}
-		var songNameSores float32 = 0.0
-		if len(songName) > 0 {
-			songNameSores = utils.CalMatchScoresV2(song.Name, songName, "songName")
-			if strings.Contains(strings.ToUpper(songName), "LIVE") && !strings.Contains(strings.ToUpper(song.Keyword), "LIVE") {
-				songNameSores = songNameSores * 0.6
-			} else if strings.Contains(strings.ToUpper(songName), "演唱会") && !strings.Contains(strings.ToUpper(song.Keyword), "演唱会") {
-				songNameSores = songNameSores * 0.6
+		for _, name := range []string{songName, albumName} {
+			if strings.Contains(name, "伴奏") && !strings.Contains(song.Keyword, "伴奏") {
+				return 0, false
+			}
+			if strings.Contains(strings.ToUpper(name), "DJ") &&
+				!strings.Contains(strings.ToUpper(song.Keyword), "DJ") {
+				return 0, false
+			}
+			if strings.Contains(strings.ToUpper(name), "COVER") &&
+				!strings.Contains(strings.ToUpper(song.Keyword), "COVER") {
+				return 0, false
+			}
+			if strings.Contains(strings.ToUpper(name), "MIX") &&
+				!strings.Contains(strings.ToUpper(song.Keyword), "MIX") {
+				return 0, false
 			}
 		}
+
+		var songNameSores float32 = 0.0
+		for i, name := range []string{songName, albumName} {
+			if len(name) > 0 {
+				if i == 0 {
+					songNameSores = utils.CalMatchScoresV2(song.Name, songName, "songName")
+				}
+				if strings.Contains(strings.ToUpper(name), "LIVE") && !strings.Contains(strings.ToUpper(song.Keyword), "LIVE") {
+					songNameSores = songNameSores * 0.6
+				} else if strings.Contains(strings.ToUpper(name), "演唱会") && !strings.Contains(strings.ToUpper(song.Keyword), "演唱会") {
+					songNameSores = songNameSores * 0.6
+				}
+			}
+		}
+
 		var artistsNameSores float32 = 0.0
 		if len(singerName) > 0 {
 			singerName = strings.ReplaceAll(singerName, "&", "、")

@@ -18,6 +18,7 @@ type Song struct {
 	AlbumName         string
 	MatchScore        float32
 	Source            string
+	Duration          int
 	PlatformUniqueKey MapType `json:"-"`
 }
 type SongSlice []*Song
