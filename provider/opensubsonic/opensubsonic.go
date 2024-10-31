@@ -3,11 +3,11 @@ package opensubsonic
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"os"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
@@ -122,13 +122,15 @@ func (o OpenSubsonic) GetSongUrl(searchSong common.SearchMusic, song *common.Son
 		} else {
 			duration = song.Duration / 2
 		}
+		client.Scrobble(song.PlatformUniqueKey["MusicId"].(string), map[string]string{
+			"time":       strconv.FormatInt(time.Now().UnixMilli(), 10),
+			"submission": "false"})
+
 		handle = time.AfterFunc(time.Duration(duration)*time.Second, func() {
-			err := client.Scrobble(song.Id, map[string]string{})
-			if err != nil {
-				log.Println("Scrobble song failed", err)
-			} else {
-				log.Println("Scrobble song", song.Name)
-			}
+			client.Scrobble(song.PlatformUniqueKey["MusicId"].(string), map[string]string{
+				"time":       strconv.FormatInt(time.Now().UnixMilli(), 10),
+				"submission": "true"})
+
 			handle.Stop()
 		})
 	}
